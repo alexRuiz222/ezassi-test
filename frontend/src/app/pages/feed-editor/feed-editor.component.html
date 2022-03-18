@@ -1,0 +1,91 @@
+<section class="container pt-2">
+    <!-- <h2>New Idea</h2> -->
+    <div class="card shadow">
+        <img class="card-img-top" src="holder.js/100px180/" alt="">
+        <div class="card-body">
+            <h4 class="card-title">{{id=='new' ? 'New idea' : feed.title}}</h4>
+            <div class="row" *ngIf="file.files.length == 0">
+                <div class="col-sm-12 text-center">
+                    <div class="border border-primary rounded p-1 m-auto d-inline-block" style="height:120px; width:120px" *ngIf="loadingImage">
+                        <ngx-skeleton-loader count="1" appearance="line" animation="progress" [theme]="{ height:'100%',width:'100%'}"></ngx-skeleton-loader>
+                    </div>
+                    <div class="img-holder" *ngIf="!loadingImage">
+                        <img class="mb-2 order border-primary rounded p-1 w-50" *ngIf="image_base64 != '' && !feed.image_preview" [src]="'data:image/png;base64,'+image_base64" alt="">
+                        <img class="border border-primary rounded p-1 w-50" [src]=" 'assets/images/image_not_found.jpg'" alt="{{feed.name}}" *ngIf="feed.image_preview == undefined && image_base64 == ''" />
+                        <img class="border border-primary rounded p-1" [src]="feed.image_preview" alt="{{feed.title}}" width="300" *ngIf="feed.image_preview != undefined" />
+                        <div class="btn-group link" role="group">
+                            <button type="button" class="btn btn-sm btn-primary round p-1" (click)="file.click();" placement="top" ngbTooltip="gallery"><span class="material-icons md-18">
+                              collections
+                            </span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input class="d-none" type="file" accept="image/*" #file (change)="fileChangeEvent($event, file.files)">
+            <div class="row justify-content-center {{image_roting ? 'disabled':''}}" *ngIf="file.files.length > 0">
+                <image-cropper [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="true" [containWithinAspectRatio]="false" [aspectRatio]="25 / 16" [resizeToWidth]="256" [cropperMinWidth]="128" [onlyScaleDown]="true" [roundCropper]="false" [alignImage]="'center'"
+                    [autoCrop]="true" [hideResizeSquares]="false" [transform]="{'width':256}" format="jpeg" [imageQuality]="92" [backgroundColor]="'white'" (imageCropped)="imageCropped($event);" #fileToCrop (imageLoaded)="imageLoaded(fileToCrop)" (cropperReady)="cropperReady()"
+                    (loadImageFailed)="loadImageFailed()" [canvasRotation]="imageRotation" class="img-fluid" style="max-height: 200px"></image-cropper>
+                <br>
+                <button class="btn btn-secondary" (click)="cancelCropping()"><span class="material-icons md-18">clear</span></button>
+                <button class="btn btn-info mx-1" (click)="imageRote()"><span class="material-icons md-18">crop_rotate</span></button>
+                <button class="btn btn-primary" (click)="closeCropping()"><span class="material-icons md-18">done</span></button>
+            </div>
+            <br>
+            <form [formGroup]="feedForm" (submit)="send()">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" formControlName="title" [ngClass]="{'is-invalid': feedFormSubmitted && tf.title.invalid}">
+                        </div>
+                    </div>
+                    <div class="col-sm-6"><br>
+                        <span class="material-icons md-24 text-warning hand" *ngFor="let star of stars" (click)="feedForm.value.qualification = star">{{star <= feedForm.value.qualification ? 'star':'star_outline' }}</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" formControlName="description" [ngClass]="{'is-invalid': feedFormSubmitted && tf.description.invalid&& tf.description.valid}" rows="5" maxlength="500"></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label for="idWorkflow" class="form-label">Workflow</label>
+                        <select class="form-control" id="idWorkflow" formControlName="idWorkflow" [ngClass]="{'is-invalid': feedFormSubmitted && tf.idWorkflow.invalid}">
+                          <option [ngValue]="null" disabled>Select Workflow</option>
+                          <option *ngFor="let workflow of workflows" [ngValue]="workflow.idWorkflow">{{workflow.name}}</option>
+                        </select>
+
+                        <!-- <input type="text" class="form-control" id="idWorkflow" formControlName="idWorkflow" [ngClass]="{'is-invalid': feedFormSubmitted && tf.idWorkflow.invalid}"> -->
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="idAssignees" class="form-label">Assignees</label>
+                        <select class="form-control" id="idAssignees" formControlName="idAssignees" [ngClass]="{'is-invalid': feedFormSubmitted && tf.idAssignees.invalid}">
+                          <option [ngValue]="null" disabled>Select Assignee</option>
+                          <option *ngFor="let assignee of assignees" [ngValue]="assignee.idAssignees">{{assignee.name}}</option>
+                        </select>
+                        <!-- <input type="text" class="form-control" id="idAssignees" formControlName="idAssignees" [ngClass]="{'is-invalid': feedFormSubmitted && tf.idAssignees.invalid}"> -->
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="score" class="form-label">Score</label>
+                        <input type="number" min="0" max="10" class="form-control" id="score" formControlName="score">
+                    </div>
+                </div>
+                <div class="row mt-3" *ngIf="id!='new'">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-danger float-left" (click)="deleteFeed(feed.idCard)">Delete</button>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-secondary float-left" (click)="goBack()">Back</button>
+                        <button class="btn btn-primary float-right" [disabled]="!feedForm.valid || this.last_event!=''" *ngIf="changes || img_changes">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</section>

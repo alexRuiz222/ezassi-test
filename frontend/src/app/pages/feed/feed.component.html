@@ -1,0 +1,123 @@
+<section>
+    <div class="row  mt-2">
+        <div class="col-12">
+            <button class="float-right btn btn-info" (click)="newFeed()"> <span class="material-icons">add</span></button>
+        </div>
+    </div>
+    <!-- <hr> -->
+    <div class="row mt-5" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" (scrolled)="onScroll()">
+        <div class="col-sm-12 ">
+            <h3 class="text-muted text-center" *ngIf="feed.length==0">There are not registries</h3>
+            <div class="card  my-1 shadow mb-5 rounded" *ngFor="let card of feed">
+                <!-- {{card.image_base64}} -->
+                <div class="card-header border-0 bg-white">
+                    <div class="tag shadow">
+                        <span class="material-icons">
+                        lightbulb_outline
+                      </span>
+                    </div>
+                    <div class="options">
+                        <span class="material-icons text-secondary hand">
+                          assignment
+                    </span></div>
+                    <div class="float-right">
+                        <div class="dropdown btn-group dropup mr-1 mb-1 " ngbDropdown container="body">
+                            <i class=" dropdown-toggle  " ngbDropdownToggle aria-haspopup="true" aria-expanded="false" (click)="$event.stopPropagation();"><span class="material-icons text-secondary hand">
+                      more_vert
+                      </span></i>
+                            <div ngbDropdownMenu class="dropdown-menu border-info p-0" role="menu">
+                                <a class="dropdown-item text-dark text-right hand" (click)="editFeed(card.idCard);$event.stopPropagation();">Edit <span class="material-icons text-info md-15">edit</span></a>
+                                <a class="dropdown-item text-dark text-right hand" (click)="deleteFeed(card.idCard);$event.stopPropagation();">Delete <span class="material-icons text-danger md-15">clear</span></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="card-body py-2 px-5">
+                        <div class="row">
+                            <div class="col-lg-4 col-md-6 d-none d-md-block p-2">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <img class="img-fluid shadow rounded w-100" [src]="card.image_base64 != undefined ? 'data:image/png;base64,'+card.image_base64 : 'assets/images/image_not_found.jpg'" alt="">
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-sm-3 ">
+                                        <h6>Assignes</h6>
+                                        <h6 class="text-primary">{{card.nameAssignees}}</h6>
+                                    </div>
+                                    <div class="col-sm-5 ">
+                                        <h6>Workflow <span class="material-icons md-15">mode</span></h6>
+                                        <h6 class="text-primary">{{card.nameWorkflow}}</h6>
+                                    </div>
+                                    <div class="col-sm-4 ">
+                                        <h6>Review Score</h6>
+                                        <span class=" badge badge-pill bg-warning text-white">{{card.score}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 d-md-none d-sm-block p-2">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <!-- <img class="img-fluid shadow rounded w-100" [defaultImage]="'assets/images/image_not_found.jpg'" [lazyLoad]="'data:image/png;base64,'+card.image_base64" alt=""> -->
+                                        <img class="img-fluid shadow rounded w-100" [src]="card.image_base64 != undefined ? 'data:image/png;base64,'+card.image_base64 : 'assets/images/image_not_found.jpg'" alt="">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-5 col-md-6 col-12 p-2">
+                                <h5 class=""> {{card.title}}</h5>
+                                <h6 class=""> {{card.description}}</h6>
+
+                                <div class="row d-lg-none d-md-block">
+                                    <div class="col-12">
+                                        <div class="text-left">Posted <strong class="text-primary">Anonymus user</strong>
+                                            <span class="material-icons md-18 text-warning " *ngFor="let star of stars">{{star <= card.qualification ? 'star':'star_outline' }}</span>
+                                            <span>({{card.qualification}})</span></div>
+                                        <div class="text-left">
+                                            <span class="material-icons md-18">calendar_month</span>{{card.updatedAt | date : "MMMM dd, yyyy hh:mm a" }}
+                                            <!-- June, 27, 2019 12:00 PM -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 d-md-none d-sm-block">
+                                <div class="row mt-3  ">
+                                    <div class=" col-sm-3">
+                                        <h6>Assignes</h6>
+                                        <h6 class="text-primary">{{card.nameAssignees}}</h6>
+                                    </div>
+                                    <div class=" col-sm-5">
+                                        <h6>Workflow <span class="material-icons md-15">mode</span></h6>
+                                        <h6 class="text-primary">
+                                            {{card.nameWorkflow}}
+                                            <!-- Idea Review/PLM II -->
+                                        </h6>
+                                    </div>
+                                    <div class=" col-sm-4">
+                                        <h6>Review Score</h6>
+                                        <span class=" badge badge-pill bg-warning text-white">{{card.score}}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-lg-3 d-none d-lg-block col-12 p-2">
+                                <div class="text-right">Posted <strong class="text-primary">Anonymus user</strong>
+                                    <span class="material-icons md-18 text-warning " *ngFor="let star of stars">{{star <= card.qualification ? 'star':'star_outline' }}</span>
+                                    <span>({{card.qualification}})</span></div>
+                                <div class="text-right">
+                                    <span class="material-icons md-18">calendar_month</span> {{card.updatedAt | date : "MMMM dd, yyyy hh:mm a" }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h3 class="text-muted text-center mb-5" *ngIf="feed.length>itemsFrom">Sorry, there no are more registries...</h3>
+        </div>
+    </div>
+</section>
